@@ -4,8 +4,7 @@
 
 int main() {
     double z;
-    int dof;
-    int interval_choice;
+    int confidence;
 
     printf("Enter Z-score: ");
     if (scanf("%lf", &z) != 1) {
@@ -13,30 +12,26 @@ int main() {
         return 1;
     }
 
-    printf("Enter degrees of freedom (e.g. 30): ");
-    if (scanf("%d", &dof) != 1 || dof <= 0) {
-        fprintf(stderr, "Invalid input for degrees of freedom!\n");
+    printf("Enter confidence level (90, 95, 99): ");
+    if (scanf("%d", &confidence) != 1 || (confidence != 90 && confidence != 95 && confidence != 99)) {
+        fprintf(stderr, "Invalid confidence level! Choose 90, 95, or 99.\n");
         return 1;
     }
 
-    printf("Select confidence interval:\n");
-    printf("1. 90%%\n2. 95%%\n3. 99%%\n");
-    if (scanf("%d", &interval_choice) != 1 || interval_choice < 1 || interval_choice > 3) {
-        fprintf(stderr, "Invalid confidence level selection!\n");
+    double prob = normal_probability(z);
+    if (prob < 0.0) {
+        fprintf(stderr, "Error computing probability.\n");
         return 1;
     }
 
-    switch (interval_choice) {
-        case 1: z = 1.645; break;
-        case 2: z = 1.96;  break;
-        case 3: z = 2.576; break;
-    }
+    printf("Probability between -Z and Z for N(0,1): %.6f\n", prob);
+    printf("Confidence interval for %d%%: %.2f%%\n", confidence, prob * 100);
 
-    double normal_interval = compute_confidence_interval(z);
-    double t_interval = compute_student_t_interval(z, dof);
-
-    printf("Normal distribution CI area (approx): %.4f\n", normal_interval);
-    printf("Student's t-distribution CI area (approx): %.4f\n", t_interval);
+    // Для демонстрації: студентський розподіл (df=40)
+    double t = z; // для простої симуляції
+    double p_student = student_probability(t, 40);
+    if (p_student > 0)
+        printf("Approximate probability for Student's t (df=40): %.6f\n", p_student);
 
     return 0;
 }
