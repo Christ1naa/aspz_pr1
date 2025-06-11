@@ -1,28 +1,19 @@
-#include "erf_module.h"
 #include <math.h>
 #include <stdio.h>
-#include <errno.h>
+#include "erf_module.h"
 
-double compute_erf(double z) {
-    errno = 0;
-    double result = erf(z * sqrt(0.5));
-    if (errno != 0) {
-        perror("Error computing erf");
+// Обчислення ймовірності для стандартного нормального розподілу
+double normal_probability(double z) {
+    return erf(z / sqrt(2.0));
+}
+
+// Спрощена симуляція t-розподілу (наближення для великих df)
+double student_probability(double t, int df) {
+    // Для df > 30 наближається до нормального
+    if (df > 30)
+        return erf(t / sqrt(2.0));
+    else {
+        fprintf(stderr, "Student's t-distribution not implemented for df <= 30\n");
         return -1;
     }
-    return result;
-}
-
-// Normal distribution confidence interval: area between -z and z
-double compute_confidence_interval(double z) {
-    return compute_erf(z);
-}
-
-// Simplified Student's t-distribution approximation
-double compute_student_t_interval(double z, int dof) {
-    // For simplicity, assume same as normal when dof > 30
-    // A full implementation would use `tgamma` and more logic
-    if (dof > 30) return compute_erf(z);
-    // Fake approximation for demo
-    return compute_erf(z * (1 - 1.0 / (4 * dof)));
 }
